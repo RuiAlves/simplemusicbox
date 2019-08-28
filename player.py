@@ -4,9 +4,6 @@ import time
 import subprocess
 import sys
 
-#Start by clearing everything that may be left over from a wrong shutdown
-
-
 #Use physical pin numbering
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -49,8 +46,5 @@ GPIO.add_event_detect(start_stop_pin, GPIO.RISING, callback=start_stop_button_ca
 
 while 1:
 	time.sleep(1)
-
-# Run until someone presses enter
-#message = input("Press enter to quit \n\n")
 
 GPIO.cleanup()
