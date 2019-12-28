@@ -5,12 +5,10 @@ import datetime
 import subprocess
 import sys
 
-#Start by clearing everything that may be left over from a wrong shutdown
-command = subprocess.Popen(["pidof", "mpv"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-stdout, stderr = command.communicate()
-if stdout.decode('UTF-8') != '':
-	subprocess.call(["pkill", "mpv"])
-	GPIO.output(music_playing_pin,GPIO.LOW)
+#DEFINE THE NAME OF THE REGULAR PLAYLIST AND OF THE XMAS PLAYLIST
+regular_playlist = "/mnt/mydisk/Playlist"
+xmas_playlist = "/mnt/mydisk/Playlist"
+#IF YOU NEED TO PLAY OTHER FILES SELECT NAME OF FOLDER ABOVE
 
 #Use physical pin numbering
 GPIO.setmode(GPIO.BOARD)
@@ -26,6 +24,13 @@ GPIO.setup(music_playing_pin,GPIO.OUT)
 
 GPIO.setup(ready_to_start_led,GPIO.OUT)
 GPIO.output(ready_to_start_led,GPIO.HIGH)
+
+#Start by clearing everything that may be left over from a wrong shutdown
+command = subprocess.Popen(["pidof", "mpv"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+stdout, stderr = command.communicate()
+if stdout.decode('UTF-8') != '':
+	subprocess.call(["pkill", "mpv"])
+GPIO.output(music_playing_pin,GPIO.LOW)
 
 #Xmas playlist dates
 today = datetime.date.today()
@@ -47,17 +52,17 @@ def start_stop_button_callback(channel):
 		stdout, stderr = command.communicate()
 		#print(stderr)
 		if stdout.decode('UTF-8') == '':
-			#if no mpv instance, start one
+ 			#if no mpv instance, start one
 			if xmas_from < today < xmas_to:
 				print('On xmas playlist')
-				subprocess.Popen(["mpv", "/mnt/mydisk/xmas", "--no-audio-display", "--shuffle", "--gapless-audio", "--loop-playlist"])
+				subprocess.Popen(["mpv", xmas_playlist, "--no-audio-display", "--shuffle", "--gapless-audio", "--loop-playlist"])
 			else:
 				print('On regular playlist')
-				subprocess.Popen(["mpv", "/mnt/mydisk/Playlist", "--no-audio-display", "--shuffle", "--gapless-audio", "--loop-playlist"])
-			#light up the LED
+				subprocess.Popen(["mpv", regular_playlist, "--no-audio-display", "--shuffle", "--gapless-audio", "--loop-playlist"])
+ 			#light up the LED
 			GPIO.output(music_playing_pin,GPIO.HIGH)
 		else:
-			#if there is an mpv instance, stop it:
+ 			#if there is an mpv instance, stop it:
 			subprocess.call(["pkill", "mpv"])
 			GPIO.output(music_playing_pin,GPIO.LOW)
 
@@ -68,6 +73,6 @@ GPIO.add_event_detect(start_stop_pin, GPIO.RISING, callback=start_stop_button_ca
 
 #keep the script running
 while 1:
-        time.sleep(.5)
+	time.sleep(.5)
 
 GPIO.cleanup()
